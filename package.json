@@ -1,0 +1,18 @@
+{
+  "name": "nest-reader",
+  "version": "1.0.0",
+  "description": "A simple Nest thermostat data reader",
+  "main": "nest_reader.js",
+  "scripts": {
+    "start": "node --experimental-modules nest_reader.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Erez Nagar (erez.nagar@gmail.com)",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "firebase": "^5.7.2",
+    "node-fetch": "^2.3.0",
+    "wretch": "^1.4.2"
+  }
+}
