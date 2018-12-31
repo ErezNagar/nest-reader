@@ -54,6 +54,8 @@ const getNestData = () => {
             has_leaf: data.has_leaf,
             temperature_c: data.target_temperature_c,
             temperature_f: data.target_temperature_f,
+            temperature_c: data.ambient_temperature_c,
+            temperature_f: data.ambient_temperature_f,
         }
     })
     .catch(error => {
