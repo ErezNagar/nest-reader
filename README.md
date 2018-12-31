@@ -5,3 +5,6 @@ Currently, the Nest API only provides realtime data, not historical, while the a
 It collects data from my own Nest Thermostat I have installed at home and logs it into a Firebase NoSQL database. Every hour, it reads the humidity and tempareture (C and F) in my home, together with the 'Eco mode' status. In addition, it also reads the outside temperature and humidity using Open Weather Map's API, for a simple reference. It then persists this data to the Firebase database.
 
 MIT Licensed.
+
+TODO:
+1) Track hvac_state property
