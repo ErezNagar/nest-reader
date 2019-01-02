@@ -7,4 +7,4 @@ It collects data from my own Nest Thermostat I have installed at home and logs i
 MIT Licensed.
 
 TODO:
-1) Track hvac_state property
+1) Track hvac_state property //tag 1.1

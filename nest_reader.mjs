@@ -2,14 +2,10 @@ import node_fetch from 'node-fetch';
 global.fetch = node_fetch;
 import http from 'http';
 import wretch from 'wretch';
-import firebase from 'firebase';
+import DAO from './dao.mjs';
 import constants from './constants.mjs';
 
-firebase.initializeApp({
-    apiKey: constants.FIREBASE_API_KEY,
-    authDomain: constants.FIREBASE_AUTH_DOMAIN,
-    databaseURL: constants.FIREBASE_DB_URL
-});
+const thermostatDAO = new DAO();
 
 let lastThermostatStatus = constants.THERMOSTAT_OFF;
 
@@ -88,7 +84,7 @@ const getOutsideWeather = () => {
 
 const saveThermostatStatus = (status) => {
     console.log("Saving thermostat status...");
-    writeToDB({
+    thermostatDAO.writeToDB({
         date: new Date(Date.now()).toLocaleString(),
         thermostatStatus: status
     });
@@ -96,18 +92,7 @@ const saveThermostatStatus = (status) => {
 
 const saveThermostatData = (data) => {
     console.log("Saving thermostat data...");
-    writeToDB(data);
-}
-
-const writeToDB = data => {
-    const dbNodeRef = firebase.database().ref('data').push();
-    dbNodeRef.set(data, error => {
-        if (error) {
-            console.log("Error persisting data", error);
-        } else {
-            console.log(`Successfully persisted data`);
-        }
-    });
+    thermostatDAO.writeToDB(data);
 }
 
 http.createServer().listen(process.env.PORT || 8818, () => {
