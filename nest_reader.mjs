@@ -11,18 +11,63 @@ firebase.initializeApp({
     databaseURL: constants.FIREBASE_DB_URL
 });
 
-const persistData = data => {
-    const dbNodeRef = firebase.database().ref('data').push();
-    dbNodeRef.set(data, error => {
-        if (error) {
-            console.log("Error persisting data", error)
-        } else {
-            console.log(`Successfully persisted data - ${data.date} (ET)`)
+let lastThermostatStatus = constants.THERMOSTAT_OFF;
+
+const run = () => {
+    getThermostatData().then(data => {
+        if (!data)
+            return;
+
+        // Track status change
+        if (data.hvac_state !== lastThermostatStatus){
+            lastThermostatStatus = data.hvac_state;
+            saveThermostatStatus(lastThermostatStatus);
         }
+
+        // Track temperatures every full hour
+        if (new Date().getMinutes() !== 0)
+            return;
+
+        const date = new Date(Date.now()).toLocaleString();
+        const thermostatData = {
+            // in percent (%) format, measured at the device, rounded to the nearest 5%.
+            humidy: data.humidity,
+            has_leaf: data.has_leaf,
+            temperature_c: data.target_temperature_c,
+            temperature_f: data.target_temperature_f,
+            ambient_temperature_c: data.ambient_temperature_c,
+            ambient_temperature_f: data.ambient_temperature_f
+        }
+
+        getOutsideWeather().then(weatherData => {
+            if (!weatherData)
+                return;
+
+            saveThermostatData({
+                date: date,
+                outside_weather: weatherData,
+                nest: thermostatData
+            });
+        });
     });
 }
 
-const getOutSideWeather = () => {
+const getThermostatData = () => {
+    return wretch(constants.NEST_API_URL, {
+        headers: { "Content-Type": "application/json", "Authorization": constants.NEST_AUTH_TOKEN, }
+    })
+    .get()
+    .json(res => {
+        // TODO: bulletproof this
+        return res.devices.thermostats[constants.DEVICE_NAME];
+    })
+    .catch(error => {
+        console.log(`error getThermostatData(): ${error}`);
+        return null;
+    })
+}
+
+const getOutsideWeather = () => {
     return wretch(constants.WEATHER_API_URL)
     .get()
     .json(res => {
@@ -36,56 +81,34 @@ const getOutSideWeather = () => {
         }
     })
     .catch(error => {
-        return error;
+        console.log(`error getOutsideWeather(): ${error}`);
+        return null;
     })
 }
 
-const getNestData = () => {
-    return wretch(constants.NEST_API_URL, {
-        headers: { "Content-Type": "application/json", "Authorization": constants.NEST_AUTH_TOKEN, }
-    })
-    .get()
-    .json(res => {
-        // TODO: bulletproof this
-        const data = res.devices.thermostats[constants.DEVICE_NAME];
-        return {
-            // in percent (%) format, measured at the device, rounded to the nearest 5%.
-            humidy: data.humidity,
-            has_leaf: data.has_leaf,
-            temperature_c: data.target_temperature_c,
-            temperature_f: data.target_temperature_f,
-            ambient_temperature_c: data.ambient_temperature_c,
-            ambient_temperature_f: data.ambient_temperature_f,
-        }
-    })
-    .catch(error => {
-        return error;
-    })
-}
-
-const run = () => {
-    Promise.all([getOutSideWeather(), getNestData()]).then(values => {
-        const weather = values[0];
-        const nest = values[1];
-    
-        const data = {
-            date: new Date(Date.now()).toLocaleString(),
-        };
-    
-        data.outside_weather = weather instanceof Error? {
-            "error": JSON.parse(weather.message).cod,
-            "message": JSON.parse(weather.message).message
-        } : weather;
-    
-        data.nest = nest instanceof Error? {
-            "error": JSON.parse(nest.message).error,
-            "message": JSON.parse(nest.message).message
-        } : nest;
-    
-        persistData(data);
+const saveThermostatStatus = (status) => {
+    console.log("Saving thermostat status...");
+    writeToDB({
+        date: new Date(Date.now()).toLocaleString(),
+        thermostatStatus: status
     });
 }
 
+const saveThermostatData = (data) => {
+    console.log("Saving thermostat data...");
+    writeToDB(data);
+}
+
+const writeToDB = data => {
+    const dbNodeRef = firebase.database().ref('data').push();
+    dbNodeRef.set(data, error => {
+        if (error) {
+            console.log("Error persisting data", error);
+        } else {
+            console.log(`Successfully persisted data`);
+        }
+    });
+}
 
 http.createServer().listen(process.env.PORT || 8818, () => {
     console.log("Started...");

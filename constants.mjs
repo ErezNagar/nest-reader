@@ -11,5 +11,6 @@ export default {
     NEST_API_URL: 'https://developer-api.nest.com',
     DEVICE_NAME: '743iDJfdnbMJlB4mVsa8ooyk___AL8Jo',
     WEATHER_API_URL: `http://api.openweathermap.org/data/2.5/weather?id=${CITY_ID}&APPID=${WEATHER_API_APP_ID}`,
-    SAMPLE_INTERVAL: 3600 * 1000 // 1 hour;
+    SAMPLE_INTERVAL: 60000, // 1 minute;
+    THERMOSTAT_OFF: "off",
 }
