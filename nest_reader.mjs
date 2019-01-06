@@ -29,9 +29,11 @@ const run = () => {
             // in percent (%) format, measured at the device, rounded to the nearest 5%.
             humidy: data.humidity,
             has_leaf: data.has_leaf,
-            temperature_c: data.target_temperature_c,
+
+            // Disable tracking of C temperatures
+            // temperature_c: data.target_temperature_c,
             temperature_f: data.target_temperature_f,
-            ambient_temperature_c: data.ambient_temperature_c,
+            // ambient_temperature_c: data.ambient_temperature_c,
             ambient_temperature_f: data.ambient_temperature_f
         }
 
@@ -65,21 +67,22 @@ const getThermostatData = () => {
 
 const getOutsideWeather = () => {
     return wretch(constants.WEATHER_API_URL)
-    .get()
-    .json(res => {
-        const temp = res.main.temp;
-        const tempInC = temp - 273.15;
-        const tempInF = tempInC * 1.8 + 32
-        return {
-            C: Math.round(tempInC * 10) / 10,
-            F: Math.round(tempInF * 10) / 10,
-            humidity: res.main.humidity
-        }
-    })
-    .catch(error => {
-        console.log(`error getOutsideWeather(): ${error}`);
-        return null;
-    })
+        .get()
+        .json(res => {
+            const temp = res.main.temp;
+            const tempInC = temp - 273.15;
+            const tempInF = tempInC * 1.8 + 32
+            return {
+                // Disable tracking of C temperatures
+                // C: Math.round(tempInC * 10) / 10,
+                F: Math.round(tempInF * 10) / 10,
+                humidity: res.main.humidity
+            }
+        })
+        .catch(error => {
+            console.log(`error getOutsideWeather(): ${error}`);
+            return null;
+        })
 }
 
 const saveThermostatStatus = (status) => {
