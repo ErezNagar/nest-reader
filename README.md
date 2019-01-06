@@ -6,5 +6,5 @@ It collects data from my own Nest Thermostat I have installed at home and logs i
 
 MIT Licensed.
 
-v1.2: Disabled tracking of C temperatures.
-v1.1: Added tracking for thermostat hvac status.
+* v1.2: Disabled tracking of C° temperatures.
+* v1.1: Added tracking for thermostat hvac status.
