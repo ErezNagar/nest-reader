@@ -27,13 +27,9 @@ const run = () => {
         const date = new Date(Date.now()).toLocaleString();
         const thermostatData = {
             // in percent (%) format, measured at the device, rounded to the nearest 5%.
-            humidy: data.humidity,
+            humidity: data.humidity,
             has_leaf: data.has_leaf,
-
-            // Disable tracking of C temperatures
-            // temperature_c: data.target_temperature_c,
             temperature_f: data.target_temperature_f,
-            // ambient_temperature_c: data.ambient_temperature_c,
             ambient_temperature_f: data.ambient_temperature_f
         }
 
@@ -73,9 +69,7 @@ const getOutsideWeather = () => {
             const tempInC = temp - 273.15;
             const tempInF = tempInC * 1.8 + 32
             return {
-                // Disable tracking of C temperatures
-                // C: Math.round(tempInC * 10) / 10,
-                F: Math.round(tempInF * 10) / 10,
+                temperature_f: Math.round(tempInF * 10) / 10,
                 humidity: res.main.humidity
             }
         })
