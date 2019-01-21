@@ -17,6 +17,10 @@ const run = () => {
     });
 }
 
+/*
+ *  Makes a network request to the thermostat API to get the device data.
+ *  @return {number} The device data.
+*/
 const getThermostatData = () => {
     return wretch(constants.NEST_API_URL, {
         headers: { "Content-Type": "application/json", "Authorization": constants.NEST_AUTH_TOKEN, }
@@ -32,6 +36,10 @@ const getThermostatData = () => {
     })
 }
 
+/*
+ *  Saves the current HVAC (heating, ventilation, and air conditioning) status when it changes
+ *  @param {object} data    the device data.
+*/
 const trackHVACStatus = data => {
     thermostatDAO.read("lastStatus")
         .then(lastStatus => {
@@ -44,6 +52,10 @@ const trackHVACStatus = data => {
         });
 }
 
+/*
+ *  Saves the device temperature data every full hour, together with the outside temperature data
+ *  @param {object} data    the device data.
+*/
 const trackTemperatures = data => {
     // Track temperatures every full hour
     if (new Date().getMinutes() !== 0)
@@ -71,6 +83,10 @@ const trackTemperatures = data => {
         });
 }
 
+/*
+ *  Gets the outside temperature data using the OpenWeatherMap API
+ *  @return {number} The outside temperature data.
+*/
 const getOutsideWeather = () => {
     return wretch(constants.WEATHER_API_URL)
         .get()
@@ -89,11 +105,19 @@ const getOutsideWeather = () => {
         })
 }
 
+/*
+ *  Updates the thermostat HVAC status flag in the DB.
+ *  @param {string} status    the new status value to save.
+*/
 const updateLastThermostatStatus = status => {
     console.log("Updating last thermostat status...");
     thermostatDAO.update(status, 'lastStatus');
 }
 
+/*
+ *  Persists the thermostat HVAC status to the DB.
+ *  @param {string} status    the status to save.
+*/
 const saveThermostatStatus = status => {
     console.log("Saving thermostat status...");
     thermostatDAO.write({
@@ -102,6 +126,10 @@ const saveThermostatStatus = status => {
     });
 }
 
+/*
+ *  Persists the data to the DB.
+ *  @param {object} data    the data to save.
+*/
 const saveThermostatData = data => {
     console.log("Saving thermostat data...");
     thermostatDAO.write(data);
