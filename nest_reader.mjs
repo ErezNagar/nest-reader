@@ -7,42 +7,13 @@ import constants from './constants.mjs';
 
 const thermostatDAO = new DAO();
 
-let lastThermostatStatus = constants.THERMOSTAT_OFF;
-
 const run = () => {
     getThermostatData().then(data => {
         if (!data)
             return;
 
-        // Track status change
-        if (data.hvac_state !== lastThermostatStatus){
-            lastThermostatStatus = data.hvac_state;
-            saveThermostatStatus(lastThermostatStatus);
-        }
-
-        // Track temperatures every full hour
-        if (new Date().getMinutes() !== 0)
-            return;
-
-        const date = new Date(Date.now()).toLocaleString();
-        const thermostatData = {
-            // in percent (%) format, measured at the device, rounded to the nearest 5%.
-            humidity: data.humidity,
-            has_leaf: data.has_leaf,
-            temperature_f: data.target_temperature_f,
-            ambient_temperature_f: data.ambient_temperature_f
-        }
-
-        getOutsideWeather().then(weatherData => {
-            if (!weatherData)
-                return;
-
-            saveThermostatData({
-                date: date,
-                outside_weather: weatherData,
-                nest: thermostatData
-            });
-        });
+        trackHVACStatus(data);
+        trackTemperatures(data);
     });
 }
 
@@ -59,6 +30,45 @@ const getThermostatData = () => {
         console.log(`error getThermostatData(): ${error}`);
         return null;
     })
+}
+
+const trackHVACStatus = data => {
+    thermostatDAO.read("lastStatus")
+        .then(lastStatus => {
+            if (data.hvac_state !== lastStatus){
+                updateLastThermostatStatus(data.hvac_state);
+                saveThermostatStatus(data.hvac_state);
+            }
+        }).catch(error => {
+            console.log("error", error);
+        });
+}
+
+const trackTemperatures = data => {
+    // Track temperatures every full hour
+    if (new Date().getMinutes() !== 0)
+        return;
+
+    const date = new Date(Date.now()).toLocaleString();
+    const thermostatData = {
+        // in percent (%) format, measured at the device, rounded to the nearest 5%.
+        humidity: data.humidity,
+        has_leaf: data.has_leaf,
+        temperature_f: data.target_temperature_f,
+        ambient_temperature_f: data.ambient_temperature_f
+    }
+
+    getOutsideWeather()
+        .then(weatherData => {
+            return weatherData;
+        })
+        .then((weatherData) => {
+            saveThermostatData({
+                date: date,
+                outside_weather: weatherData,
+                nest: thermostatData
+            });
+        });
 }
 
 const getOutsideWeather = () => {
@@ -79,17 +89,22 @@ const getOutsideWeather = () => {
         })
 }
 
-const saveThermostatStatus = (status) => {
+const updateLastThermostatStatus = status => {
+    console.log("Updating last thermostat status...");
+    thermostatDAO.update(status, 'lastStatus');
+}
+
+const saveThermostatStatus = status => {
     console.log("Saving thermostat status...");
-    thermostatDAO.writeToDB({
+    thermostatDAO.write({
         date: new Date(Date.now()).toLocaleString(),
         thermostatStatus: status
     });
 }
 
-const saveThermostatData = (data) => {
+const saveThermostatData = data => {
     console.log("Saving thermostat data...");
-    thermostatDAO.writeToDB(data);
+    thermostatDAO.write(data);
 }
 
 http.createServer().listen(process.env.PORT || 8818, () => {

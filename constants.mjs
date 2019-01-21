@@ -8,6 +8,5 @@ export default {
     FIREBASE_DB_URL: process.env.FIREBASE_DB_URL,
     DEVICE_NAME: '743iDJfdnbMJlB4mVsa8ooyk___AL8Jo',
     WEATHER_API_URL: `http://api.openweathermap.org/data/2.5/weather?id=${CITY_ID}&APPID=${process.env.WEATHER_API_APP_ID}`,
-    SAMPLE_INTERVAL: 60000, // 1 minute;
-    THERMOSTAT_OFF: "off",
+    SAMPLE_INTERVAL: 60000 // 1 minute;
 }

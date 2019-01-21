@@ -10,7 +10,19 @@ export default class DAO {
         });
     }
 
-    writeToDB(data) {
+    read(path){
+        return new Promise((resolve, reject) => {
+            firebase.database().ref(path).once('value')
+            .then(snapshot =>  {
+                resolve(snapshot.val());
+            })
+            .catch(error => {
+                reject(error);
+            });
+        });
+    }
+
+    write(data) {
         const nodeRef = firebase.database().ref('data').push();
         nodeRef.set(data, error => {
             if (error) {
@@ -19,5 +31,15 @@ export default class DAO {
                 console.log(`Successfully persisted data`);
             }
         });
+    }
+
+    update(data, path) {
+        firebase.database().ref().update({[path]: data}, error => {
+            if (error) {
+                console.log("Error updating data", error);
+            } else {
+                console.log(`Successfully updateed data`);
+            }
+          });
     }
 }
