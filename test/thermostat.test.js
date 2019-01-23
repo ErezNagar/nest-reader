@@ -1,4 +1,4 @@
-import Thermostat from '../thermostat.mjs';
+import Thermostat from '../src/thermostat.mjs';
 import '@babel/polyfill';
 
 describe('Thermostat', () => {

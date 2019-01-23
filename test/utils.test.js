@@ -1,6 +1,6 @@
 import node_fetch from 'node-fetch';
 global.fetch = node_fetch;
-import utils from '../utils.mjs';
+import utils from '../src/utils.mjs';
 import '@babel/polyfill';
 
 describe('Utilities', () => {

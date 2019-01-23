@@ -2,10 +2,10 @@
   "name": "nest-reader",
   "version": "1.0.0",
   "description": "A Nest thermostat data reader",
-  "main": "nest_reader.js",
+  "main": "./src/nest_reader.js",
   "scripts": {
-    "start": "node --experimental-modules nest_reader.mjs",
-    "dev": "SET NODE_ENV=development& node --experimental-modules nest_reader.mjs",
+    "start": "node --experimental-modules src/nest_reader.mjs",
+    "dev": "SET NODE_ENV=development& node --experimental-modules src/nest_reader.mjs",
     "test": "SET NODE_ENV=development& jest --silent"
   },
   "repository": {
