@@ -1,18 +1,49 @@
 {
   "name": "nest-reader",
   "version": "1.0.0",
-  "description": "A simple Nest thermostat data reader",
+  "description": "A Nest thermostat data reader",
   "main": "nest_reader.js",
   "scripts": {
     "start": "node --experimental-modules nest_reader.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "SET NODE_ENV=development& node --experimental-modules nest_reader.mjs",
+    "test": "SET NODE_ENV=development& jest --silent"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ErezNagar/nest-reader"
+  },
+  "keywords": [
+    "nest",
+    "thermostat",
+    "temperatures",
+    "weather"
+  ],
   "author": "Erez Nagar (erez.nagar@gmail.com)",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/polyfill": "^7.2.5",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^23.6.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.6.0",
+    "regenerator-runtime": "^0.13.1"
+  },
   "dependencies": {
     "firebase": "^5.7.2",
     "node-fetch": "^2.3.0",
     "wretch": "^1.4.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest",
+      "^.+\\.mjs$": "babel-jest"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "node",
+      "mjs"
+    ]
   }
 }
