@@ -2,11 +2,13 @@ import Thermostat from '../src/thermostat.mjs';
 import '@babel/polyfill';
 
 describe('Thermostat', () => {
-    it('Should not get device data using the wrong auth', async () => {
+    it('Should not get device data using the wrong auth', () => {
         const thermostat = new Thermostat("badAuth");
-        const response = await thermostat.getThermostatData();
+        thermostat.getThermostatData()
+            .then(res => {
+                expect(JSON.parse(res.message).error).toBe("unauthorized");
+            });
         // expect(await thermostat.getThermostatData()).rejects.toBeInstanceOf(Error);
-        expect(JSON.parse(response.message).error).toBe("unauthorized");
     });
 
     it('Should get device data', async () => {

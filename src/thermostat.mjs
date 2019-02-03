@@ -38,13 +38,13 @@ export default class Thermostat {
         this.getLastStatus()
             .then(lastStatus => {
                 if (data.hvac_state !== lastStatus){
+                    this.lastStatus = data.hvac_state;
                     this.saveLastThermostatStatus(data.hvac_state);
                     this.saveThermostatStatus(data.hvac_state);
                 }
             })
             .catch(error => console.log(`Error getting last status: ${error}`));
     }
-
     
     /*
     *  Gets the cached value of lastStatus. If cache is empty, fetches from DB and updates the cache with the new value
@@ -85,7 +85,6 @@ export default class Thermostat {
         }
 
         utils.getOutsideWeather()
-            .then(weatherData => weatherData)
             .then((weatherData) => {
                 this.saveThermostatData({
                     date: date,
