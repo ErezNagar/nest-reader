@@ -23,7 +23,8 @@ export default class DAO {
     */
     _read(location = constants.LAST_STATUS_LOCATION) {
         return new Promise((resolve, reject) => {
-            firebase.database().ref(location).once('value')
+            firebase.database().ref(location)
+                .once('value')
                 .then(snapshot =>  resolve(snapshot.val()))
                 .catch(error => reject(error));
         });

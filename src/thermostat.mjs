@@ -9,6 +9,7 @@ export default class Thermostat {
     constructor(auth = constants.NEST_AUTH_TOKEN){
         this.thermostatDAO = new DAO();
         this.auth = auth;
+        this.lastStatus = null;
     }
 
     /*
@@ -16,18 +17,17 @@ export default class Thermostat {
     *  @return {number} The device data.
     */
     getThermostatData() {
-        return wretch(constants.NEST_API_URL, {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": this.auth
-            }
-        })
-        .get()
-        .json(res => res.devices.thermostats[constants.DEVICE_NAME])
-        .catch(error => {
-            console.log(`error getThermostatData(): ${error}`);
-            return error;
-        })
+        return new Promise((resolve, reject) => {
+            wretch(constants.NEST_API_URL, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": this.auth
+                }
+            })
+            .get()
+            .json(res => res.devices.thermostats[constants.DEVICE_NAME])
+            .catch(error => console.log(`Error getting thermostat data: ${error}`));
+        });
     }
 
     /*
@@ -35,15 +35,35 @@ export default class Thermostat {
     *  @param {object} data    the device data.
     */
     trackHVACStatus(data) {
-        this.thermostatDAO.readLastStatus()
+        this.getLastStatus()
             .then(lastStatus => {
                 if (data.hvac_state !== lastStatus){
-                    this.updateLastThermostatStatus(data.hvac_state);
+                    this.saveLastThermostatStatus(data.hvac_state);
                     this.saveThermostatStatus(data.hvac_state);
                 }
-            }).catch(error => {
-                console.log("error", error);
-            });
+            })
+            .catch(error => console.log(`Error getting last status: ${error}`));
+    }
+
+    
+    /*
+    *  Gets the cached value of lastStatus. If cache is empty, fetches from DB and updates the cache with the new value
+    *  @param {object} data    the device data.
+    */
+    getLastStatus() {
+        return new Promise((resolve, reject) => {
+            if (this.lastStatus)
+                resolve(this.lastStatus);
+            else{
+                this.thermostatDAO.readLastStatus()
+                    .then(lastStatus => {
+                        console.log("lastStatus fetched from DB:", lastStatus);
+                        this.lastStatus = lastStatus;
+                        resolve(lastStatus);
+                    })
+                    .catch(error => reject(error));
+            }
+        })
     }
 
     /*
@@ -79,7 +99,7 @@ export default class Thermostat {
     *  Updates the thermostat HVAC status flag in the DB.
     *  @param {string} status    the new status value to save.
     */
-    updateLastThermostatStatus(status) {
+    saveLastThermostatStatus(status) {
         console.log("Updating last thermostat status...");
         this.thermostatDAO.updateLastStatus(status);
     }
