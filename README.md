@@ -6,6 +6,7 @@ It collects data from my own Nest Thermostat I have installed at home and logs i
 
 MIT Licensed.
 
+* v1.3.1 Caching lastStatus to prevent hitting the DB every time.
 * v1.3: Fixed humidity type error. Changed outside temperature F property to temperature_f.
 * v1.2: Disabled tracking of C° temperatures.
 * v1.1: Added tracking for thermostat hvac status.

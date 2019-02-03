@@ -18,14 +18,14 @@ export default class Thermostat {
     */
     getThermostatData() {
         return new Promise((resolve, reject) => {
-            wretch(constants.NEST_API_URL, {
+            return wretch(constants.NEST_API_URL, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": this.auth
                 }
             })
             .get()
-            .json(res => res.devices.thermostats[constants.DEVICE_NAME])
+            .json(res => resolve(res.devices.thermostats[constants.DEVICE_NAME]))
             .catch(error => console.log(`Error getting thermostat data: ${error}`));
         });
     }
